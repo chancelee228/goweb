@@ -7,6 +7,7 @@ import (
 	"github.com/Unknwon/com"
 	"os"
 	"path"
+	"strconv"
 )
 const(
 	_DB_NAME ="data/beeblog.db"
@@ -46,4 +47,38 @@ func RegisterDB(){
 	orm.RegisterDriver(_SQLITE3_DRIVER,orm.DRSqlite)
 	//注册数据库
 	orm.RegisterDataBase("default",_SQLITE3_DRIVER,_DB_NAME,10)//最大连接数
+}
+func AddCategory(name string) error{
+	o:=orm.NewOrm()
+	category:=&category{Title:name,Created:time.Now(),TopicTime:time.Now()}
+	qs:=o.QueryTable("category")
+	err:=qs.Filter("title",name).One(category)
+	if nil == err{
+		return *new(error)
+	}
+	_,err = o.Insert(category)
+	if nil != err{
+		return err
+	}
+	return nil
+}
+
+func DelCategoryById(id string) error {
+	cid,err :=strconv.ParseInt(id,10,64)
+	if err != nil {
+		return err
+	}
+	o:=orm.NewOrm()
+	category:=&category{Id:cid}
+	_,err=o.Delete(category)
+	return err
+}
+
+func GetAllCategories() ([]*category,error){
+	o:=orm.NewOrm()
+	categories:=make([]*category,0)
+	qs:=o.QueryTable("category")
+	_,err := qs.All(&categories)
+	return categories,err
+
 }

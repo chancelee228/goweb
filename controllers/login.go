@@ -3,12 +3,18 @@ package controllers
 import(
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
-	"net/url"
 )
 type LoginController struct {
 	beego.Controller
 }
 func(this *LoginController)Get(){
+	isExist := this.Input().Get("exit") == "true"
+	if isExist{
+		this.Ctx.SetCookie("username","",-1,"/")
+		this.Ctx.SetCookie("password","",-1,"/")
+		this.Redirect("/",301)
+		return
+	}
 	this.TplName = "login.html"
 }
 func (this *LoginController) Post(){
@@ -26,6 +32,16 @@ func (this *LoginController) Post(){
 	this.Redirect("/",301)
 	return
 }
-func checkAccount(ctx *context.Context,input *url.Values){
-	
+func checkAccount(ctx *context.Context) bool {
+	ck,err :=ctx.Request.Cookie("username")
+	if nil != err{
+		return false
+	}
+	username := ck.Value
+	ck,err = ctx.Request.Cookie("password")
+	if nil != err{
+		return false
+	}
+	password:=ck.Value
+	return beego.AppConfig.String("username") == username && beego.AppConfig.String("password") == password
 }
