@@ -82,3 +82,45 @@ func GetAllCategories() ([]*category,error){
 	return categories,err
 
 }
+func GetAllTopics(isDesc bool)([]*Topic,error){
+	o:=orm.NewOrm()
+	topics:=make([]*Topic,0)
+	qs:=o.QueryTable("topic")
+	var err error
+	if isDesc{
+		_,err = qs.OrderBy("-created").All(&topics)
+	}else {
+		_,err = qs.All(&topics)
+	}
+	return topics,err
+}
+
+func AddTopic(title,content string )error{
+	o:=orm.NewOrm()
+	topic:=&Topic{
+		Title:title,
+		Content:content,
+		Created:time.Now(),
+		Updated:time.Now(),
+		ReplyTime:time.Now(),
+	}
+	_,err:=o.Insert(topic)
+	return err
+}
+
+func GetTopicById(id string) (*Topic,error){
+	tidNum,err:=strconv.ParseInt(id,10,64)
+	if nil != err{
+		return nil,err
+	}
+	o:=orm.NewOrm()
+	topic:=new(Topic)
+	qs:=o.QueryTable("topic")
+	err = qs.Filter("id",tidNum).One(topic)
+	if nil != err{
+		return nil,err
+	}
+	topic.Views++
+	_,err = o.Update(topic)
+	return topic,err
+}

@@ -32,7 +32,7 @@ func (this *LoginController) Post(){
 	this.Redirect("/",301)
 	return
 }
-func checkAccount(ctx *context.Context) bool {
+func CheckAccount(ctx *context.Context) bool {
 	ck,err :=ctx.Request.Cookie("username")
 	if nil != err{
 		return false
