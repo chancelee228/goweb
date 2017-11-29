@@ -13,7 +13,7 @@ const(
 	_DB_NAME ="data/beeblog.db"
 	_SQLITE3_DRIVER = "sqlite3"
 )
-type category struct {
+type Category struct {
 	Id 	int64
 	Title 	string
 	Created time.Time `orm:"index"`
@@ -42,7 +42,7 @@ func RegisterDB(){
 		os.Create(_DB_NAME)
 	}
 	//注册模型
-	orm.RegisterModel(new(category),new(Topic))
+	orm.RegisterModel(new(Category),new(Topic))
 	//注册驱动
 	orm.RegisterDriver(_SQLITE3_DRIVER,orm.DRSqlite)
 	//注册数据库
@@ -50,7 +50,7 @@ func RegisterDB(){
 }
 func AddCategory(name string) error{
 	o:=orm.NewOrm()
-	category:=&category{Title:name,Created:time.Now(),TopicTime:time.Now()}
+	category:=&Category{Title:name,Created:time.Now(),TopicTime:time.Now()}
 	qs:=o.QueryTable("category")
 	err:=qs.Filter("title",name).One(category)
 	if nil == err{
@@ -69,14 +69,14 @@ func DelCategoryById(id string) error {
 		return err
 	}
 	o:=orm.NewOrm()
-	category:=&category{Id:cid}
+	category:=&Category{Id:cid}
 	_,err=o.Delete(category)
 	return err
 }
 
-func GetAllCategories() ([]*category,error){
+func GetAllCategories() ([]*Category,error){
 	o:=orm.NewOrm()
-	categories:=make([]*category,0)
+	categories:=make([]*Category,0)
 	qs:=o.QueryTable("category")
 	_,err := qs.All(&categories)
 	return categories,err
@@ -123,4 +123,30 @@ func GetTopicById(id string) (*Topic,error){
 	topic.Views++
 	_,err = o.Update(topic)
 	return topic,err
+}
+func ModifyTopic(id string,title string,content string) error{
+	tidNum,err:=strconv.ParseInt(id,10,64)
+	if nil != err{
+		return err
+	}
+	o:=orm.NewOrm()
+	topic:=&Topic{Id:tidNum}
+	if o.Read(topic) == nil{
+		topic.Title = title
+		topic.Content = content
+		topic.Updated=time.Now()
+		o.Update(topic)
+	}
+	return nil
+}
+
+func DeleteTopicById(id string) error{
+	tid,err :=strconv.ParseInt(id,10,64)
+	if err != nil {
+		return err
+	}
+	o:=orm.NewOrm()
+	topic:=&Topic{Id:tid}
+	_,err=o.Delete(topic)
+	return err
 }

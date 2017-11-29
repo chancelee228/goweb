@@ -16,7 +16,12 @@ func (this *TopicController) Post(){
 	title:=this.Input().Get("title")
 	content:=this.Input().Get("content")
 	var err error
-	err=models.AddTopic(title,content)
+	tid:=this.Input().Get("tid")
+	if len(tid) == 0{
+		err=models.AddTopic(title,content)
+	}else {
+		err=models.ModifyTopic(tid,title,content)
+	}
 	if nil != err{
 		beego.Error(err)
 	}
@@ -48,4 +53,29 @@ func (this *TopicController) View(){
 	}
 	this.Data["Topic"] = topic
 	this.Data["Tid"] = this.Ctx.Input.Param("0")
+}
+
+func (this *TopicController) Modify(){
+	this.TplName = "topic_modify.html"
+	tid := this.Input().Get("tid")
+	topic,err:=models.GetTopicById(tid)
+	if nil != err{
+		beego.Error(err)
+		this.Redirect("/",302)
+		return
+	}
+	this.Data["Topic"] = topic
+	this.Data["Tid"] = tid
+}
+
+func (this *TopicController) Delete(){
+	if !CheckAccount(this.Ctx){
+		this.Redirect("/login",302)
+		return
+	}
+	err:=models.DeleteTopicById(this.Input().Get("tid"))
+	if nil != err{
+		beego.Error(err)
+	}
+	this.Redirect("/",302)
 }

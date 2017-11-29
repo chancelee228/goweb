@@ -18,6 +18,7 @@
                             <th>最后更新</th>
                             <th>浏览</th>
                             <th>回复数</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,6 +29,7 @@
                                 <th>{{.Updated}}</th>
                                 <th>{{.Views}}</th>
                                 <th>{{.ReplyCount}}</th>
+                                <th><a href="/topic/delete?tid={{.Id}}">删除</a> </th>
                             </tr>
                         {{end}}
                     </tbody>
