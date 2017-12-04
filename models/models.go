@@ -26,6 +26,7 @@ type Topic struct {
 	Id int64
 	Uid int64
 	Title string
+	Cid string
 	Content string `orm:"size(5000)"`
 	Attachment string
 	Created time.Time `orm:"index"`
@@ -35,6 +36,8 @@ type Topic struct {
 	ReplyTime time.Time `orm:"index"`
 	ReplyCount int64
 	ReplyLastUserId int64
+	Category *Category `json:"Category" orm:"rel(fk)`
+
 }
 func RegisterDB(){
 	if !com.IsExist(_DB_NAME){
@@ -95,16 +98,27 @@ func GetAllTopics(isDesc bool)([]*Topic,error){
 	return topics,err
 }
 
-func AddTopic(title,category,content string )error{
+func AddTopic(title,categoryId,content string )error{
 	o:=orm.NewOrm()
+	cidNum,err:=strconv.ParseInt(categoryId,10,64)
+	if nil != err{
+		return err
+	}
+	category:=new(Category)
+	qs:=o.QueryTable("category")
+	err = qs.Filter("id",cidNum).One(category)
+	if nil != err{
+		return err
+	}
 	topic:=&Topic{
 		Title:title,
 		Content:content,
+		Cid:categoryId,
 		Created:time.Now(),
 		Updated:time.Now(),
 		ReplyTime:time.Now(),
 	}
-	_,err:=o.Insert(topic)
+	_,err = o.Insert(topic)
 	return err
 }
 
@@ -124,15 +138,27 @@ func GetTopicById(id string) (*Topic,error){
 	_,err = o.Update(topic)
 	return topic,err
 }
-func ModifyTopic(id string,title string,category string,content string) error{
+func ModifyTopic(id string,title string,categoryId string,content string) error{
 	tidNum,err:=strconv.ParseInt(id,10,64)
 	if nil != err{
 		return err
 	}
+	cidNum,e:=strconv.ParseInt(id,10,64)
+	if nil != e{
+		return e
+	}
 	o:=orm.NewOrm()
+	category := new(Category)
+	qs:=o.QueryTable("category")
+	er := qs.Filter("id",cidNum).One(category)
+	if nil != er{
+		return er
+	}
+
 	topic:=&Topic{Id:tidNum}
 	if o.Read(topic) == nil{
 		topic.Title = title
+		topic.Cid = categoryId
 		topic.Content = content
 		topic.Updated=time.Now()
 		o.Update(topic)

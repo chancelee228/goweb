@@ -11,6 +11,10 @@ func (this *CategoryController)Get(){
 	op:=this.Input().Get("op")
 	switch op {
 	case "add":
+		if !CheckAccount(this.Ctx){
+			this.Redirect("/login",302)
+			return
+		}
 		cname:=this.Input().Get("cname")
 		if len(cname) == 0 {
 			break
@@ -22,6 +26,10 @@ func (this *CategoryController)Get(){
 		this.Redirect("/category",301)
 		return
 	case "del":
+		if !CheckAccount(this.Ctx){
+			this.Redirect("/login",302)
+			return
+		}
 		id:=this.Input().Get("id")
 		if len(id) == 0 {
 			break
