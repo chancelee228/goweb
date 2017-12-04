@@ -15,12 +15,13 @@ func (this *TopicController) Post(){
 	}
 	title:=this.Input().Get("title")
 	content:=this.Input().Get("content")
+	category:=this.Input().Get("category")
 	var err error
 	tid:=this.Input().Get("tid")
 	if len(tid) == 0{
-		err=models.AddTopic(title,content)
+		err=models.AddTopic(title,category,content)
 	}else {
-		err=models.ModifyTopic(tid,title,content)
+		err=models.ModifyTopic(tid,title,category,content)
 	}
 	if nil != err{
 		beego.Error(err)
@@ -40,7 +41,13 @@ func (this *TopicController) Get(){
 }
 func (this *TopicController) Add()  {
 	this.TplName = "topic_add.html"
+	this.Data["IsLogin"] = CheckAccount(this.Ctx)
+	var err error
+	this.Data["Categories"],err = models.GetAllCategories()
 	//this.Ctx.WriteString("add topic")
+	if nil != err{
+		beego.Error(err)
+	}
 }
 
 func (this *TopicController) View(){

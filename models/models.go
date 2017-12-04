@@ -95,7 +95,7 @@ func GetAllTopics(isDesc bool)([]*Topic,error){
 	return topics,err
 }
 
-func AddTopic(title,content string )error{
+func AddTopic(title,category,content string )error{
 	o:=orm.NewOrm()
 	topic:=&Topic{
 		Title:title,
@@ -124,7 +124,7 @@ func GetTopicById(id string) (*Topic,error){
 	_,err = o.Update(topic)
 	return topic,err
 }
-func ModifyTopic(id string,title string,content string) error{
+func ModifyTopic(id string,title string,category string,content string) error{
 	tidNum,err:=strconv.ParseInt(id,10,64)
 	if nil != err{
 		return err

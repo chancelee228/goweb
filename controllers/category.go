@@ -33,8 +33,8 @@ func (this *CategoryController)Get(){
 		this.Redirect("/category",301)
 		return
 	}
-
 	this.TplName = "category.html"
+	this.Data["IsLogin"] = CheckAccount(this.Ctx)
 	this.Data["IsCategory"] = true
 	var err error
 	this.Data["Categories"],err = models.GetAllCategories()
